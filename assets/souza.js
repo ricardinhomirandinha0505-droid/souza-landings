@@ -87,3 +87,9 @@
     img.complete ? requestAnimationFrame(() => { const h = lp.querySelector('.hint'); init(); if (h) lp.appendChild(h); }) : img.addEventListener('load', () => { const h = lp.querySelector('.hint'); init(); if (h) lp.appendChild(h); });
   }
 })();
+// vídeo: botão grande de play; esconde-o quando o vídeo arranca
+document.querySelectorAll('.vid-frame').forEach(f => {
+  const v = f.querySelector('video'), b = f.querySelector('.vid-play');
+  b.addEventListener('click', () => { v.play(); });
+  v.addEventListener('play', () => f.classList.add('playing'));
+});

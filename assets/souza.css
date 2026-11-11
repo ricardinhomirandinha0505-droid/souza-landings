@@ -196,3 +196,11 @@ footer a{color:var(--on-navy-2)}
 }
 @media (max-width:520px){.sectors{grid-template-columns:1fr}.ctas .btn{width:100%}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.bead path{stroke-dashoffset:0}html{scroll-behavior:auto}}
+/* vídeo de apresentação */
+.vid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.62fr);gap:clamp(28px,5vw,72px);align-items:center}
+.vid-frame{position:relative;margin:0;border-radius:6px;overflow:hidden;background:#0d1830;box-shadow:0 24px 60px -24px rgba(13,24,48,.55);max-width:380px;justify-self:center;width:100%}
+.vid-frame video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;background:#0d1830}
+.vid-play{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;border:0;background:#f07a1a;color:#0d1830;cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 10px rgba(240,122,26,.25);transition:transform .2s}
+.vid-play:hover{transform:scale(1.06)}.vid-play svg{width:38px;height:38px;margin-left:4px}
+.vid-frame.playing .vid-play{display:none}
+@media (max-width:900px){.vid{grid-template-columns:1fr}.vid-frame{max-width:340px}}
