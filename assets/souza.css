@@ -287,3 +287,37 @@ footer a{color:var(--on-navy-2)}
 /* A: no telemóvel mostra 8 fotos e depois o botão */
 .more{display:none}
 @media (max-width:900px){.gal:not(.all) button:nth-child(n+9){display:none}.gal:not(.all)+.more{display:flex;width:100%;margin-top:4px}}
+
+/* ===== revisão 2 (11/11) ===== */
+/* faíscas por cima da foto do topo */
+.sparks{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.hero-media figcaption{z-index:3}
+
+/* título principal: letras incandescentes que arrefecem */
+.hero h1 .w{display:inline-block;white-space:nowrap}
+.welding .hot{display:inline-block;animation:cool 1.5s calc(.25s + var(--i) * 28ms) var(--ease) both}
+@keyframes cool{
+  0%{color:#fff;opacity:0;text-shadow:0 0 18px #fff,0 0 34px #ffd27a;transform:translateY(.12em)}
+  18%{color:#fff8e1;opacity:1;text-shadow:0 0 14px #ffe9a8,0 0 30px #ffb340}
+  45%{color:#ffc76b;text-shadow:0 0 10px rgba(255,150,40,.8),0 0 24px rgba(240,122,26,.5);transform:none}
+  75%{color:#ffd9a8;text-shadow:0 0 6px rgba(240,122,26,.35)}
+  100%{color:inherit;text-shadow:none}}
+
+/* títulos das secções: palavras a subir */
+.words .wd{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em;margin-bottom:-.08em}
+.words .wd>span{display:inline-block;transform:translateY(105%);transition:transform .8s calc(var(--k) * 55ms) var(--ease)}
+.words.in .wd>span{transform:none}
+
+/* passos: a linha laranja desenha-se de passo em passo */
+.steps li::after{content:"";position:absolute;top:-2px;left:0;width:100%;height:2px;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease)}
+.steps li.in::after{transform:scaleX(1)}
+.steps li:nth-child(2)::after{transition-delay:.35s}
+.steps li:nth-child(3)::after{transition-delay:.7s}
+
+/* contacto final com foto de obra por trás */
+.final{background:linear-gradient(90deg,rgba(13,24,48,.97) 0,rgba(13,24,48,.9) 45%,rgba(13,24,48,.84) 100%),url(img/f15-1400.webp) center/cover no-repeat,var(--navy)}
+.final::before{display:none}
+
+@media (max-width:900px){
+  .final{background:linear-gradient(180deg,rgba(13,24,48,.94),rgba(13,24,48,.86)),url(img/f15-800.webp) center/cover no-repeat,var(--navy)}
+}

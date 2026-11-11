@@ -103,3 +103,76 @@ document.querySelectorAll('.vid-frame').forEach(f => {
   const mq = matchMedia('(min-width:901px)');
   new IntersectionObserver(([e]) => top.classList.toggle('fix', !e.isIntersecting && mq.matches), { rootMargin: '-120px 0px 0px 0px' }).observe(hero);
 })();
+// ===== revisão 2 (11/11): faíscas no topo, título que arrefece, títulos palavra a palavra, linha dos passos =====
+(() => {
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1) título principal: as letras entram incandescentes e arrefecem (da esquerda para a direita)
+  const h1 = document.querySelector('.hero h1');
+  if (h1 && !calm) {
+    const txt = h1.textContent; h1.setAttribute('aria-label', txt);
+    let i = 0;
+    h1.innerHTML = txt.split(/(\s+)/).map(w => /^\s+$/.test(w) ? w :
+      `<span class="w" aria-hidden="true">${[...w].map(c => `<span class="hot" style="--i:${i++}">${c}</span>`).join('')}</span>`).join('');
+    h1.classList.add('welding');
+  }
+
+  // 2) títulos das secções: palavras a subir quando a secção aparece
+  document.querySelectorAll('section:not(.hero) h2').forEach(h => {
+    if (calm || h.querySelector('*')) return;
+    const txt = h.textContent; h.setAttribute('aria-label', txt);
+    h.innerHTML = txt.split(' ').map((w, k) => `<span class="wd" aria-hidden="true"><span style="--k:${k}">${w}</span></span>`).join(' ');
+    h.classList.add('words');
+    const io = new IntersectionObserver(([e], o) => { if (e.isIntersecting) { h.classList.add('in'); o.disconnect(); } }, { rootMargin: '0px 0px -10% 0px' });
+    io.observe(h);
+  });
+
+  // 3) faíscas a sair do ponto da soldadura na foto do topo
+  const media = document.querySelector('.hero-media'), img = media && media.querySelector('img');
+  if (!media || !img || calm) return;
+  const ARC = { x: 0.294, y: 0.496 };              // ponto do arco na foto f04 (fração da imagem)
+  const cv = document.createElement('canvas'); cv.className = 'sparks'; cv.setAttribute('aria-hidden', 'true');
+  media.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  let W = 0, H = 0, ax = 0, ay = 0, dpr = 1, run = false, last = 0, ps = [], sc = 1;
+  const fit = () => {
+    const r = media.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // object-fit:cover + object-position lido do CSS
+    const iw = img.naturalWidth || 800, ih = img.naturalHeight || 1422, s = Math.max(W / iw, H / ih);
+    const pos = getComputedStyle(img).objectPosition.split(' ').map(v => parseFloat(v) / 100);
+    const ox = (W - iw * s) * (isNaN(pos[0]) ? .5 : pos[0]), oy = (H - ih * s) * (isNaN(pos[1]) ? .5 : pos[1]);
+    ax = ox + ARC.x * iw * s; ay = oy + ARC.y * ih * s;
+    sc = Math.min(1, Math.max(.4, H / 900));
+  };
+  const spawn = n => { for (let k = 0; k < n; k++) {
+    const a = -Math.PI / 2 + (Math.random() - .35) * 2.4, v = (120 + Math.random() * 340) * sc;
+    ps.push({ x: ax + (Math.random() - .5) * 8, y: ay + (Math.random() - .5) * 6, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: .5 + Math.random() * 1.1, w: (1.2 + Math.random() * 1.6) * Math.max(.6, sc) });
+  } };
+  const tick = t => {
+    if (!run) return;
+    const dt = Math.min(.033, (t - last) / 1000 || .016); last = t;
+    ctx.clearRect(0, 0, W, H);
+    // brilho do arco a tremeluzir
+    const f = .75 + Math.random() * .25, g = ctx.createRadialGradient(ax, ay, 0, ax, ay, 90 * f * sc);
+    g.addColorStop(0, `rgba(200,225,255,${.55 * f})`); g.addColorStop(.35, `rgba(120,170,255,${.18 * f})`); g.addColorStop(1, 'rgba(120,170,255,0)');
+    ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.fillRect(ax - 100, ay - 100, 200, 200);
+    spawn(Math.round((3 + Math.random() * 3) * sc * sc + .3));
+    ps = ps.filter(p => (p.life += dt) < p.max && p.y < H + 10);
+    for (const p of ps) {
+      
+      p.vy += 520 * sc * dt; p.vx *= .995; p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = 1 - p.life / p.max;                        // arrefece: branco → amarelo → laranja
+      ctx.strokeStyle = `rgba(255,${Math.round(150 + 105 * k)},${Math.round(60 + 160 * k * k)},${k})`;
+      ctx.lineWidth = p.w * (0.6 + k * .6); ctx.beginPath(); ctx.moveTo(p.x - p.vx * .028, p.y - p.vy * .028); ctx.lineTo(p.x, p.y); ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    requestAnimationFrame(tick);
+  };
+  const start = () => { if (!run) { run = true; last = performance.now(); requestAnimationFrame(tick); } };
+  const stop = () => { run = false; };
+  const go = () => { fit(); new IntersectionObserver(([e]) => e.isIntersecting ? start() : stop()).observe(media); };
+  img.complete ? go() : img.addEventListener('load', go);
+  addEventListener('resize', fit);
+  document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+})();
