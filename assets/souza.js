@@ -35,6 +35,9 @@
       document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === c));
       items.forEach(b => b.hidden = c.dataset.f !== 'all' && !b.dataset.t.includes(c.dataset.f));
     }));
+    const more = document.querySelector('.more');
+    if (more) more.addEventListener('click', () => gal.classList.add('all'));
+    document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => gal.classList.add('all')));
     const lb = document.querySelector('.lb');
     items.forEach(b => b.addEventListener('click', () => {
       lb.querySelector('img').src = b.dataset.big; lb.querySelector('img').alt = b.querySelector('img').alt;
@@ -87,9 +90,16 @@
     img.complete ? requestAnimationFrame(() => { const h = lp.querySelector('.hint'); init(); if (h) lp.appendChild(h); }) : img.addEventListener('load', () => { const h = lp.querySelector('.hint'); init(); if (h) lp.appendChild(h); });
   }
 })();
-// vídeo: botão grande de play; esconde-o quando o vídeo arranca
+// vídeo: botão grande de play; controlos só depois de arrancar
 document.querySelectorAll('.vid-frame').forEach(f => {
   const v = f.querySelector('video'), b = f.querySelector('.vid-play');
-  b.addEventListener('click', () => { v.play(); });
-  v.addEventListener('play', () => f.classList.add('playing'));
+  b.addEventListener('click', () => { v.controls = true; v.play(); });
+  v.addEventListener('play', () => { f.classList.add('playing'); v.controls = true; });
 });
+// cabeçalho fixo no computador depois do topo
+(() => {
+  const top = document.querySelector('.top'), hero = document.querySelector('.hero');
+  if (!top || !hero || !('IntersectionObserver' in window)) return;
+  const mq = matchMedia('(min-width:901px)');
+  new IntersectionObserver(([e]) => top.classList.toggle('fix', !e.isIntersecting && mq.matches), { rootMargin: '-120px 0px 0px 0px' }).observe(hero);
+})();
