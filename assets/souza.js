@@ -176,3 +176,47 @@ document.querySelectorAll('.vid-frame').forEach(f => {
   addEventListener('resize', fit);
   document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
 })();
+// ===== revisão 3 (Soares 11/11): carrossel dos reels, passos com impacto, perguntas ao passar o rato =====
+(() => {
+  // 1) carrossel dos 3 reels: o ativo ao centro, os outros atrás; muda com setas, pontos, toque nos de lado ou deslizar
+  document.querySelectorAll('.reels').forEach(c => {
+    const sl = [...c.querySelectorAll('.reel')], dots = [...c.querySelectorAll('.dot')], n = sl.length;
+    const info = c.querySelector('.reel-info'), data = JSON.parse(c.querySelector('.reel-data').textContent);
+    let cur = 0;
+    const show = i => {
+      cur = (i + n) % n;
+      sl.forEach((s, k) => {
+        let p = k - cur; if (p > n / 2) p -= n; if (p < -n / 2) p += n;
+        s.dataset.pos = p; s.setAttribute('aria-hidden', p !== 0);
+        const v = s.querySelector('video'); if (p !== 0 && !v.paused) v.pause();
+        s.querySelector('.vid-play').tabIndex = p === 0 ? 0 : -1;
+      });
+      dots.forEach((d, k) => d.setAttribute('aria-current', k === cur));
+      info.querySelector('b').textContent = data[cur][0]; info.querySelector('span').textContent = data[cur][1];
+    };
+    c.querySelector('.prev').addEventListener('click', () => show(cur - 1));
+    c.querySelector('.next').addEventListener('click', () => show(cur + 1));
+    dots.forEach((d, k) => d.addEventListener('click', () => show(k)));
+    sl.forEach((s, k) => s.addEventListener('click', e => { if (s.dataset.pos !== '0') { e.preventDefault(); e.stopPropagation(); show(k); } }, true));
+    c.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') show(cur - 1); if (e.key === 'ArrowRight') show(cur + 1); });
+    let x0 = null;
+    c.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    c.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); x0 = null; });
+    show(0);
+  });
+
+  // 2) passos: números a surgir do fundo com impacto, legendas atrás; só a primeira vez
+  const st = document.querySelector('.steps.impact');
+  if (st && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    [...st.children].forEach((li, k) => li.style.setProperty('--k', k));
+    st.classList.add('armed');
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { st.classList.add('go'); o.disconnect(); } }, { threshold: 0.35 }).observe(st);
+  } else if (st) st.classList.add('go');
+
+  // 3) perguntas: no computador abrem ao passar o rato (o cliente não tem de clicar)
+  if (matchMedia('(hover: hover) and (min-width: 901px)').matches) {
+    const ds = [...document.querySelectorAll('.faq details')]; let tm;
+    ds.forEach(d => d.addEventListener('mouseenter', () => { clearTimeout(tm); tm = setTimeout(() => { ds.forEach(o => { if (o !== d) o.open = false; }); d.open = true; }, 140); }));
+    ds.forEach(d => d.addEventListener('mouseleave', () => clearTimeout(tm)));
+  }
+})();
