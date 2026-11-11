@@ -5,7 +5,7 @@
   const raw = new URLSearchParams(location.search).get('r') || '';
   const ref = /^SZ-\d{4}$/.test(raw.toUpperCase()) ? raw.toUpperCase() : '';
   const tag = ref ? `\n\n[Ref. ${ref} · ${V}]` : `\n\n[${V}]`;
-  const base = 'Olá Elias, vi a página da SOUZA para serralharias e queria falar sobre técnicos para a minha empresa.';
+  const base = 'Olá Fábio, vi a página da SOUZA para serralharias e queria falar sobre técnicos para a minha empresa.';
   const link = (txt) => `https://wa.me/${WA}?text=${encodeURIComponent(txt + tag)}`;
   document.querySelectorAll('a[data-wa]').forEach(a => { a.href = link(base); a.target = '_blank'; a.rel = 'noopener'; });
 
@@ -51,7 +51,7 @@
     const val = n => [...dg.querySelectorAll(`[name=${n}]:checked`)].map(i => i.value);
     const upd = () => {
       const t = val('t'), q = val('q')[0], w = val('w')[0], onde = dg.querySelector('[name=onde]').value.trim();
-      let m = 'Olá Elias, preciso de reforço na minha serralharia.';
+      let m = 'Olá Fábio, preciso de reforço na minha serralharia.';
       if (t.length) m += `\nTrabalho: ${t.join(', ')}.`;
       if (q) m += `\nTécnicos: ${q}.`;
       if (onde) m += `\nOnde: ${onde}.`;
