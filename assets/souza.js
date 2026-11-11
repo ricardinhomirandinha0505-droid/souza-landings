@@ -1,6 +1,6 @@
 // SOUZA landings: código da empresa (?r=SZ-0001) no WhatsApp, revelações, CTA fixo, galeria, diagnóstico, lupa.
 (() => {
-  const WA = '351913004509';
+  const WA = '351916868318';
   const V = document.documentElement.dataset.variante || 'O';
   const raw = new URLSearchParams(location.search).get('r') || '';
   const ref = /^SZ-\d{4}$/.test(raw.toUpperCase()) ? raw.toUpperCase() : '';
